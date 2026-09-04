@@ -99,6 +99,17 @@ artwork, so Lumina keeps its own dark theme. Webamp as an embeddable
 "classic Winamp" window (its base skin is Nullsoft artwork, not MIT) remains a
 possible opt-in extra.
 
+## Recommendations from the synthesis that were deliberately not taken (yet)
+
+The research synthesis also proposed: Butterchurn 3.0 beta with `onlyUseWASM`
+(kept 2.6.7 stable), a real EEL expression compiler for user-scriptable AVS
+SuperScopes (the AVS mode ships hand-written effect lists instead), `.milk`
+and `.avs` import, a PreShift/PostShift split in the feedback engine,
+equal-power crossfade and gapless playback (Gapless-5 maths), a 10-band EQ,
+IndexedDB persistence of directory handles and cover blobs, a Winamp-style
+preset overlay list, and an optional XP.css-styled options dialog. They are
+all compatible with the architecture and are listed below as future work.
+
 ## What a future version could add
 
 - Butterchurn 3 (WASM EEL, `onlyUseWASM`) and user-imported `.milk` presets via

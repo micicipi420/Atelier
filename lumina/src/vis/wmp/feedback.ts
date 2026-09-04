@@ -338,6 +338,8 @@ export class FeedbackEngine {
   private time = 0;
   private hue = 0;
   private u = new Map<string, WebGLUniformLocation | null>();
+  /** honour the OS reduced-motion preference: gentler warps, faster fade (Now Playing's safety rule) */
+  private reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   width: number;
   height: number;
 
@@ -461,7 +463,12 @@ export class FeedbackEngine {
       ink = preset.ink * 0.6;
       shift = preset.shiftStrength * (0.7 + this.env.bass * 0.08);
     }
-    const flash = preset.flashOnBeat && playing ? frame.beatEnergy * Math.min(1, this.env.rms * 1.4) : 0;
+    if (this.reduced) {
+      decay = Math.min(0.9, decay);
+      shift *= 0.3;
+      ink *= playing ? 0.55 : 0;
+    }
+    const flash = preset.flashOnBeat && playing && !this.reduced ? frame.beatEnergy * Math.min(1, this.env.rms * 1.4) : 0;
 
     gl.disable(gl.BLEND);
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.pp.write.fbo);
