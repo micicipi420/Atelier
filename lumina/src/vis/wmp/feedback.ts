@@ -337,6 +337,8 @@ export class FeedbackEngine {
   private env = { bass: 0, mid: 0, treble: 0, rms: 0, pulse: 0, loud: 0 };
   private time = 0;
   private hue = 0;
+  private lastFlash = -10;
+  private flashLevel = 0;
   private u = new Map<string, WebGLUniformLocation | null>();
   /** honour the OS reduced-motion preference: gentler warps, faster fade (Now Playing's safety rule) */
   private reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -468,7 +470,13 @@ export class FeedbackEngine {
       shift *= 0.3;
       ink *= playing ? 0.55 : 0;
     }
-    const flash = preset.flashOnBeat && playing && !this.reduced ? frame.beatEnergy * Math.min(1, this.env.rms * 1.4) : 0;
+    // flash-on-loud with a rate limiter: at most one flash every 0.45 s (< 3 per second, WCAG 2.3.1)
+    if (preset.flashOnBeat && playing && !this.reduced && frame.beat && this.env.rms > 0.45 && this.time - this.lastFlash > 0.45) {
+      this.lastFlash = this.time;
+      this.flashLevel = 1;
+    }
+    this.flashLevel = Math.max(0, this.flashLevel - dt * 4);
+    const flash = this.flashLevel;
 
     gl.disable(gl.BLEND);
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.pp.write.fbo);

@@ -64,6 +64,27 @@ log-spaced bars with peak hold.
 | F / double-click | Fullscreen (controls auto-hide) |
 | S · E · O / Shift+O · D · Tab · H | Shuffle · repeat · open files/folder · demo · playlist · help |
 
+## Browser support and deployment
+
+| Feature | Chrome / Edge | Firefox | Safari |
+| --- | --- | --- | --- |
+| All visualizer modes (WebGL2, Web Audio) | ✔ | ✔ | 15+ |
+| Open files / drag & drop of files and folders | ✔ | ✔ | ✔ (files) |
+| *Open folder* via File System Access API | ✔ | falls back to `webkitdirectory` | falls back |
+| Installed-PWA file handlers (`launchQueue`) | ✔ desktop | – | – |
+| Media Session (media keys, lock screen) | ✔ | ✔ | ✔ |
+
+Analysis tables are derived from the AudioContext's real sample rate (44.1 or
+48 kHz); only the Winamp classic mode intentionally reproduces Winamp's fixed
+1024-sample transform.
+
+`npm run build` produces a static site: serve `dist/` over HTTPS (needed for
+PWA install and file handlers). If you set a Content-Security-Policy, allow
+`'unsafe-eval'` for `script-src` — Butterchurn 2.x compiles MilkDrop preset
+equations with `new Function`. There is no service worker yet, so the app is
+online-first. Flashing effects are rate-limited to under three per second
+and disabled entirely when the OS `prefers-reduced-motion` setting is on.
+
 ## Architecture
 
 ```

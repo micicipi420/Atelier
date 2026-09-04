@@ -35,7 +35,12 @@ Atelier repository as it existed before Lumina was started.
   this software without specific prior written permission. THIS SOFTWARE IS
   PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
   OR IMPLIED WARRANTIES ARE DISCLAIMED.
-- **Now Playing** — Manaiakalani, MIT (https://github.com/Manaiakalani/now-playing).
+- **Now Playing** — Manaiakalani, MIT (https://github.com/Manaiakalani/now-playing,
+  commit `ce8edca`, "Initial public release of Now Playing"). MIT License,
+  Copyright (c) 2026 Manaiakalani — permission is hereby granted, free of
+  charge, to any person obtaining a copy of this software, to deal in the
+  Software without restriction, subject to the standard MIT conditions; the
+  software is provided "as is", without warranty of any kind.
   `src/vis/wmp/feedback.ts` is a raw-WebGL2 port of its three.js
   `FeedbackEngine` (displacement modes and ink drawers) and audio envelopes;
   `src/vis/wmp/presets.ts` starts from its Ambience / Battery / Alchemy /
@@ -66,6 +71,14 @@ Atelier repository as it existed before Lumina was started.
   Spin, Starfield, Moving Particle) and its 64-frames-per-colour cycling.
 - **Beat detection** — energy-variance threshold after Frédéric Patin,
   "Beat Detection Algorithms" (GameDev.net, 2003).
+
+## MilkDrop preset policy
+
+The bundled MilkDrop presets (via `butterchurn-presets`) are community works
+whose authors are named in each preset title; only the conversion and
+packaging is MIT. Lumina redistributes them as-is, does not relicense them,
+and will remove any preset on request from its author (open an issue in this
+repository). No preset image textures are shipped.
 
 ## Inspiration only
 

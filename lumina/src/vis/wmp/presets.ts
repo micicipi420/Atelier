@@ -60,6 +60,12 @@ export const batteryPresets: FeedbackPreset[] = [
   p({ id: 'strawberryaid', name: 'strawberryaid', shift: 5, draw: 13, decay: 0.965, paletteLocked: true, palette: ['#100208', '#701030', '#ff3060', '#ffb0c0', '#fff0f4'], shiftStrength: 1, ink: 1.1, flashOnBeat: true, seed: 0.13 }),
   p({ id: 'theworld', name: 'the world', shift: 17, draw: 1, decay: 0.97, paletteLocked: true, palette: ['#020810', '#104080', '#30a060', '#e0d090', '#ffffff'], shiftStrength: 0.9, ink: 1.05, seed: 0.44 }),
   p({ id: 'tornado', name: 'my tornado is resting', shift: 11, draw: 11, decay: 0.96, paletteLocked: false, palette: ['#0a0c10', '#2c3540', '#8aa0b8', '#e8eef4'], hueSpeed: 0.04, shiftStrength: 1.1, ink: 1.05, flashOnBeat: true, seed: 0.52 }),
+  p({ id: 'dandelionaid', name: 'dandelionaid', shift: 2, draw: 3, decay: 0.962, paletteLocked: true, palette: ['#080a02', '#506010', '#c8d840', '#f8ffc0'], shiftStrength: 1.05, ink: 1.05, seed: 0.21 }),
+  p({ id: 'drinkdeep', name: 'drinkdeep', shift: 15, draw: 10, decay: 0.97, paletteLocked: true, palette: ['#020614', '#0c2a70', '#3070d0', '#a0d0ff'], shiftStrength: 0.9, ink: 1.05, seed: 0.39 }),
+  p({ id: 'eletriarnation', name: 'eletriarnation', shift: 6, draw: 14, decay: 0.96, paletteLocked: true, palette: ['#02040c', '#1030a0', '#40b0ff', '#ffffff'], shiftStrength: 1.2, ink: 1.15, flashOnBeat: true, seed: 0.57 }),
+  p({ id: 'hizodge', name: 'hizodge', shift: 4, draw: 5, decay: 0.962, paletteLocked: false, palette: ['#0a0a0a', '#c04020', '#f0c020', '#20a0c0'], hueSpeed: 0.05, shiftStrength: 1, ink: 1.05, seed: 0.74 }),
+  p({ id: 'iseethetruth', name: 'i see the truth', shift: 12, draw: 13, decay: 0.968, paletteLocked: true, palette: ['#000000', '#402060', '#c080ff', '#ffffff'], shiftStrength: 1.1, ink: 1.1, flashOnBeat: true, seed: 0.86 }),
+  p({ id: 'sleepyspray', name: 'sleepyspray', shift: 14, draw: 18, decay: 0.975, paletteLocked: true, palette: ['#06040c', '#302858', '#8a80c0', '#e8e0ff'], shiftStrength: 0.6, ink: 0.95, seed: 0.3 }),
   p({ id: 'backtothegroove', name: 'back to the groove', shift: 13, draw: 11, decay: 0.958, paletteLocked: false, palette: ['#080410', '#5020a0', '#ff8020', '#ffe080'], hueSpeed: 0.06, shiftStrength: 1.15, ink: 1.1, flashOnBeat: true, seed: 0.9 }),
 ];
 

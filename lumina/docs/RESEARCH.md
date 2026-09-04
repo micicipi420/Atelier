@@ -99,6 +99,37 @@ artwork, so Lumina keeps its own dark theme. Webamp as an embeddable
 "classic Winamp" window (its base skin is Nullsoft artwork, not MIT) remains a
 possible opt-in extra.
 
+## Critique pass and how it was addressed
+
+A final adversarial review of the research plan raised these points; the
+implementation answers them as follows.
+
+- **Butterchurn 2.6.7 vs 3.0 beta** — decided: 2.6.7 (the `latest` tag;
+  the beta has had no release for over a year). The Playwright smoke test
+  exercises it under SwiftShader.
+- **Geiss warp equations** — extracted from `geissomatik/geiss` `main.cpp`
+  (the mode switch around lines 4640–4990: flat zoom 0.99, tunnel
+  `0.9 − 0.1r`, tunnel #2 `0.95 − 0.3r²`, terra, sphere, diamond, hourglass,
+  hall of mirrors, petals, phonic rings `0.95 − ⌊10r⌋·0.04`, fast swirl
+  (scale 0.96, turn 0.05), 1/r zoom, sine-turn, stretch-to-death
+  `1 − 0.45r`, diced cube, split-world), not the boolean flag tables.
+- **AVS scripting** — no EEL runtime; twelve hand-written effect lists
+  instead. Recorded as future work.
+- **WMP presets are tributes** — every colour is tuned by eye to the
+  documented descriptions; all 26 Battery, 14 Ambience and 21 Musical Colors
+  names are present. Now Playing is pinned to its commit in NOTICE.md.
+- **Photosensitivity** — flash-on-loud is limited to one flash per 0.45 s
+  and disabled under `prefers-reduced-motion`; MilkDrop transitions always
+  blend (no automatic hard cuts).
+- **Sample rate** — bands, bars and the WMP/AVS spectrum textures are derived
+  from the AudioContext's sample rate; the Winamp classic transform is fixed
+  at 1024 samples on purpose.
+- **Preset redistribution** — an explicit as-is / takedown policy for the
+  MilkDrop presets is in NOTICE.md; the projectM packs are still not shipped.
+- **Packaging** — static HTTPS hosting, CSP note (`'unsafe-eval'` for
+  Butterchurn 2.x) and the absence of a service worker are documented in the
+  README.
+
 ## Recommendations from the synthesis that were deliberately not taken (yet)
 
 The research synthesis also proposed: Butterchurn 3.0 beta with `onlyUseWASM`
