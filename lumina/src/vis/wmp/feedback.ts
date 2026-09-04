@@ -115,8 +115,8 @@ vec2 applyShift(vec2 uv) {
     p.x += 0.008 * s;
   } else if (uShift < 11.5) {    // spiral
     float t = a + r * 1.8 + uTime * 0.08 + uSeed;
-    r = pow(max(r, 0.0001), 0.94);
-    p = vec2(cos(t), sin(t)) * r * 0.995;
+    r = pow(max(r, 0.0001), 1.03);
+    p = vec2(cos(t), sin(t)) * r * 0.992;
   } else if (uShift < 12.5) {    // bass zoom
     p *= 0.99 - uBass * 0.008;
   } else if (uShift < 13.5) {    // wave warp
@@ -174,7 +174,7 @@ float inject(vec2 uv) {
     ink = smoothstep(0.07, 0.0, ring) * (0.6 + energy);
   } else if (uDraw < 2.5) {      // radar sweep
     float sweep = abs(fract(a / 6.28318 - uTime * 0.04) - 0.5);
-    ink = smoothstep(0.08, 0.0, sweep - 0.42) * (0.25 + energy * 0.5);
+    ink = smoothstep(0.1, 0.0, 0.5 - sweep) * (0.9 + energy * 0.5);   // a thin bright sweeping wedge
     ink += smoothstep(0.05, 0.0, abs(r - 0.32)) * 0.25;
   } else if (uDraw < 3.5) {      // dot grid
     vec2 g = fract(p * 10.0) - 0.5;
@@ -199,7 +199,7 @@ float inject(vec2 uv) {
     vec2 f = fract(gp) - 0.5;
     float n = 0.35 + 0.65 * fract(sin(dot(floor(gp), vec2(12.7, 78.2)) + uSeed) * 43758.5);
     float twinkle = 0.6 + 0.4 * sin(uTime * 3.0 + n * 40.0);
-    ink = smoothstep(0.2, 0.0, length(f)) * n * (0.5 + 0.5 * twinkle) * (2.0 + uTreble);
+    ink = smoothstep(0.13, 0.0, length(f)) * n * (0.5 + 0.5 * twinkle) * (1.2 + uTreble);
   } else if (uDraw < 8.5) {      // floor rise
     float h = 0.15 + uBass * 0.35 + uRms * 0.2;
     ink = smoothstep(h + 0.08, h, uv.y) * (0.2 + h * 0.6);
@@ -261,13 +261,20 @@ void main() {
   vec2 vp = (vUv - 0.5) * vec2(uResolution.x / max(uResolution.y, 1.0), 1.0);
   float vign = 1.0 - 0.05 * smoothstep(0.4, 0.9, length(vp));
   // multiplicative decay plus a small subtractive fade (like a palette index counting down) so dim washes die out
-  // outside the frame is black (clamping would smear border pixels inwards forever)
-  vec3 src = (uvShift.x < 0.0 || uvShift.x > 1.0 || uvShift.y < 0.0 || uvShift.y > 1.0) ? vec3(0.0) : texture(tPrev, uvShift).rgb;
+  // outside the frame: mirror back inside (clamping would smear border pixels inwards forever,
+  // black would cut rotations into a disc)
+  vec2 m = uvShift;
+  if (m.x < 0.0) m.x = -m.x;
+  if (m.x > 1.0) m.x = 2.0 - m.x;
+  if (m.y < 0.0) m.y = -m.y;
+  if (m.y > 1.0) m.y = 2.0 - m.y;
+  vec3 src = texture(tPrev, clamp(m, 0.0, 1.0)).rgb;
   vec3 prev = max(src * uDecay * vign - uFade, 0.0);
   float ink = inject(vUv) * uInk;
   float look;
-  if (uPaletteLocked > 0.5) look = clamp(0.22 + uHueShift * 0.12 + uBass * 0.08, 0.02, 0.98);
-  else look = fract(0.22 + uHueShift * 0.35 + uBass * 0.08);
+  // ink comes from the brighter half of the palette (index 0-1 are the dark background tones)
+  if (uPaletteLocked > 0.5) look = clamp(0.5 + uHueShift * 0.12 + uBass * 0.3, 0.3, 0.98);
+  else look = fract(0.5 + uHueShift * 0.35 + uBass * 0.2);
   vec3 inkCol = texture(tPalette, vec2(look, 0.5)).rgb;
   // ink only fills the remaining headroom so feedback can never white out
   float head = 1.0 - max(prev.r, max(prev.g, prev.b));
