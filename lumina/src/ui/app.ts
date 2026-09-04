@@ -84,6 +84,7 @@ const HOTKEYS: [string, string][] = [
   ['O / Shift+O', 'Open files / folder'],
   ['D', 'Load demo tracks'],
   ['Tab', 'Toggle playlist'],
+  ['I', 'Show frame rate'],
   ['H / ?', 'This help'],
 ];
 
@@ -216,13 +217,22 @@ export function createApp(root: HTMLElement, deps: AppDeps): { host: VisHost } {
   host.registerAll(modes);
   host.setFpsElement(settings.showFps ? el.fps : null);
   host.lockPreset = settings.lockPreset;
-  for (const m of modes) {
+  const familyLabel: Record<string, string> = { milkdrop: 'MilkDrop', winamp: 'Winamp', wmp: 'Windows Media Player', scope: 'Oscilloscope', shader: 'Shaders' };
+  const groups = new Map<string, HTMLOptGroupElement>();
+  modes.forEach((m, i) => {
+    let g = groups.get(m.family);
+    if (!g) {
+      g = document.createElement('optgroup');
+      g.label = familyLabel[m.family] ?? m.family;
+      groups.set(m.family, g);
+      el.modeSelect.appendChild(g);
+    }
     const opt = document.createElement('option');
     opt.value = m.id;
-    opt.textContent = m.name;
+    opt.textContent = i < 10 ? `${(i + 1) % 10}  ${m.name}` : m.name;
     opt.title = m.description;
-    el.modeSelect.appendChild(opt);
-  }
+    g.appendChild(opt);
+  });
   el.modeSelect.addEventListener('change', () => void host.setModeById(el.modeSelect.value));
   host.addEventListener('mode', () => {
     const m = host.mode;
