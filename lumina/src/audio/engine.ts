@@ -139,6 +139,17 @@ export class AudioEngine extends EventTarget {
     if (autoplay) void this.play();
   }
 
+  /** Stop and forget the current track (e.g. when the playlist is cleared). */
+  unload(): void {
+    this.el.pause();
+    if (this._objectUrl) URL.revokeObjectURL(this._objectUrl);
+    this._objectUrl = null;
+    this._track = null;
+    this.el.removeAttribute('src');
+    this.el.load();
+    this.dispatchEvent(new Event('trackchange'));
+  }
+
   async play(): Promise<void> {
     this.ensureContext();
     if (!this.el.src) return;

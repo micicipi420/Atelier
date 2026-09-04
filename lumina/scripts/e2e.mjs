@@ -9,7 +9,7 @@ const ROOT = resolve(new URL('..', import.meta.url).pathname);
 const DIST = join(ROOT, 'dist');
 const OUT = join(ROOT, 'e2e-out');
 mkdirSync(OUT, { recursive: true });
-if (!existsSync(join(DIST, 'index.html'))) {
+if (!process.env.E2E_URL && !existsSync(join(DIST, 'index.html'))) {
   console.error('dist/ missing — run `npm run build` first');
   process.exit(1);
 }
@@ -22,9 +22,11 @@ const server = createServer((req, res) => {
   res.setHeader('Content-Type', MIME[extname(f)] ?? 'application/octet-stream');
   res.end(readFileSync(f));
 });
-await new Promise(r => server.listen(0, '127.0.0.1', r));
-const port = server.address().port;
-const url = `http://127.0.0.1:${port}/`;
+let url = process.env.E2E_URL;
+if (!url) {
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  url = `http://127.0.0.1:${server.address().port}/`;
+} else console.log('testing against', url);
 
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium',

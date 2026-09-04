@@ -500,11 +500,9 @@ export function createApp(root: HTMLElement, deps: AppDeps): { host: VisHost } {
     'open-folder': () => void openFolder(),
     demo: () => void loadDemo(),
     clear: () => {
-      engine.stop();
       playlist.clear();
-      engine.load({ id: '', title: '', artist: '', album: '', tagged: true, fileName: '', size: 0, url: '' }, false);
-      (engine as unknown as { _track: Track | null })._track = null;
-      updateNowPlaying();
+      engine.unload();
+      updatePlayState();
       updateTime();
     },
     shuffle: () => playlist.toggleShuffle(),
