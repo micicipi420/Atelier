@@ -32,6 +32,8 @@ async function loadPack(importer: () => Promise<unknown>, pack: string): Promise
 }
 
 export const MILKDROP_SETTINGS_KEY = 'lumina.milkdrop';
+/** Transition length when the user explicitly picks a preset (Webamp's USER_PRESET). */
+export const USER_BLEND_SECONDS = 5.7;
 
 interface MilkdropSettings {
   cycleSeconds: number;
@@ -43,11 +45,11 @@ interface MilkdropSettings {
 function loadSettings(): MilkdropSettings {
   try {
     const raw = localStorage.getItem(MILKDROP_SETTINGS_KEY);
-    if (raw) return { cycleSeconds: 25, blendSeconds: 2.7, allPacks: true, ...JSON.parse(raw) };
+    if (raw) return { cycleSeconds: 15, blendSeconds: 2.7, allPacks: true, ...JSON.parse(raw) };
   } catch {
     /* ignore */
   }
-  return { cycleSeconds: 25, blendSeconds: 2.7, allPacks: true };
+  return { cycleSeconds: 15, blendSeconds: 2.7, allPacks: true };
 }
 
 export class MilkdropVis implements VisInstance {
@@ -56,6 +58,7 @@ export class MilkdropVis implements VisInstance {
   private index = -1;
   private history: number[] = [];
   private lastSwitch = 0;
+  private playClock = 0;
   private node: AudioNode | null = null;
   private ctx: VisContext | null = null;
   private settings = loadSettings();
@@ -111,8 +114,10 @@ export class MilkdropVis implements VisInstance {
 
   render(frame: AudioFrame): void {
     if (!this.vis) return;
-    if (!this.locked && this.presets.length > 1 && frame.time - this.lastSwitch > this.settings.cycleSeconds) {
-      this.randomPreset();
+    // Webamp cycles presets every 15 s of *playing* time only.
+    if (frame.active) this.playClock += frame.dt;
+    if (frame.active && !this.locked && this.presets.length > 1 && this.playClock - this.lastSwitch > this.settings.cycleSeconds) {
+      this.randomPreset(this.settings.blendSeconds);
       this.ctx?.toast(this.presetName());
     }
     this.vis.render();
@@ -146,14 +151,14 @@ export class MilkdropVis implements VisInstance {
   currentPreset(): number {
     return this.index;
   }
-  setPreset(index: number, blend = this.settings.blendSeconds): void {
+  setPreset(index: number, blend = USER_BLEND_SECONDS): void {
     if (!this.vis || !this.presets.length) return;
     const n = ((index % this.presets.length) + this.presets.length) % this.presets.length;
     const entry = this.presets[n]!;
     if (this.index >= 0 && this.index !== n) this.history.push(this.index);
     if (this.history.length > 64) this.history.shift();
     this.index = n;
-    this.lastSwitch = performance.now() / 1000;
+    this.lastSwitch = this.playClock;
     try {
       this.vis.loadPreset(entry.preset, blend);
     } catch (err) {
@@ -166,11 +171,12 @@ export class MilkdropVis implements VisInstance {
       /* ignore */
     }
   }
-  randomPreset(): void {
+  /** Webamp: 2.7 s for automatic transitions, 5.7 s when the user picks. */
+  randomPreset(blend = USER_BLEND_SECONDS): void {
     if (this.presets.length < 2) return;
     let n = this.index;
     while (n === this.index) n = Math.floor(Math.random() * this.presets.length);
-    this.setPreset(n);
+    this.setPreset(n, blend);
   }
   /** Go back through the history (MilkDrop's Backspace). */
   previousInHistory(): void {

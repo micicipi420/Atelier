@@ -323,11 +323,13 @@ input[type='range'] {
   min-width: 0;
 }
 .playlist-item .t {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .playlist-item .a {
+  display: block;
   color: var(--muted);
   font-size: 12px;
   overflow: hidden;

@@ -54,7 +54,8 @@ console.log('frame:', frame);
 if (!(frame.maxFreq > 20)) fail('analyser produced no spectrum');
 
 // 3. every mode & preset
-const modes = await page.evaluate(() => window.lumina.host.allModes.map((m) => ({ id: m.id, name: m.name })));
+let modes = await page.evaluate(() => window.lumina.host.allModes.map((m) => ({ id: m.id, name: m.name })));
+if (process.env.E2E_MODES) { const want = process.env.E2E_MODES.split(','); modes = modes.filter((m) => want.includes(m.id)); }
 const nonBlack = async (label) => {
   const buf = await page.locator('[data-el=vis]').screenshot({ path: join(OUT, `${label}.png`) });
   return page.evaluate(async (b64) => {
