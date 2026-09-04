@@ -6,5 +6,44 @@
   "display": "standalone",
   "background_color": "#0b0c10",
   "theme_color": "#0b0c10",
-  "icons": [{ "src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "./",
+      "accept": {
+        "audio/mpeg": [
+          ".mp3"
+        ],
+        "audio/flac": [
+          ".flac"
+        ],
+        "audio/mp4": [
+          ".m4a"
+        ],
+        "audio/aac": [
+          ".aac"
+        ],
+        "audio/ogg": [
+          ".ogg",
+          ".oga",
+          ".opus"
+        ],
+        "audio/wav": [
+          ".wav"
+        ],
+        "audio/webm": [
+          ".weba"
+        ]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
 }

@@ -336,9 +336,10 @@ export class AvsVis implements VisInstance {
           const b = bars.values[Math.floor(f * 63)]!;
           const y0 = (f * 2 - 1) * ay;
           const y1 = ((i + 1) / 127 * 2 - 1) * ay;
-          const c: Rgb = [b, b * b, 1 - b];
-          put(x, y0, c, Math.min(1, b * 1.6 + 0.1));
-          put(x, y1, c, Math.min(1, b * 1.6 + 0.1));
+          // heat colours: dark blue → purple → orange → white
+          const c: Rgb = [Math.min(1, b * 1.8), Math.max(0, b * 2.2 - 0.9), Math.min(1, 0.6 - b * 0.4 + b * b * 1.2)];
+          put(x, y0, c, 0.25 + b);
+          put(x, y1, c, 0.25 + b);
         }
         end('lines', s);
       } else if (r === 'ring') {

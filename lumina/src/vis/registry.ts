@@ -8,6 +8,7 @@ import { wmpBarsMode } from './modes/wmpBars';
 import { alchemyMode, ambienceMode, batteryMode, musicalColorsMode, plenopticMode } from './modes/wmpFeedback';
 import { wmpSpikesMode } from './modes/wmpSpikes';
 import { wmpParticleMode } from './modes/wmpParticle';
+import { shaderLabMode } from './modes/shaderlab';
 
 /** Order defines the number hotkeys (1..9,0) and the menu order. */
 export const modes: VisualizerMode[] = [
@@ -24,4 +25,5 @@ export const modes: VisualizerMode[] = [
   wmpSpikesMode,
   wmpParticleMode,
   xyScopeMode,
+  shaderLabMode,
 ];

@@ -132,7 +132,7 @@ export class WmpBarsVis implements VisInstance {
       const m = ((x % 2) + 2) % 2;
       return m > 1 ? 2 - m : m;
     };
-    const spec = (x: number) => logSpectrum(frame.freq, Math.pow(tri(x), 1.15)) * alive;
+    const spec = (x: number) => Math.pow(logSpectrum(frame.freq, Math.pow(tri(x), 1.15)), 0.75) * alive;
     const L = this.layers;
     for (let i = 0; i < n; i++) {
       const u = i / (n - 1);
@@ -145,45 +145,50 @@ export class WmpBarsVis implements VisInstance {
       L[1]![i] = L[1]![i]! + (h2 - L[1]![i]!) * 0.2;
       L[2]![i] = L[2]![i]! + (h3 - L[2]![i]!) * 0.12;
     }
-    const pal = fire ? ['#100404', '#7a1e08', '#e05018', '#ffd080'] : ['#041018', '#0f4a68', '#1a8ab0', '#d5f4f2'];
+    const pal = fire
+      ? { bg: '#0a0302', back: '#7a2a0a', mid: '#e0561a', front: '#9a2e0c', ridge: '#ffe08a', mist: '#ff9a3c' }
+      : { bg: '#02070d', back: '#2a6f8f', mid: '#1f8fc0', front: '#0b4f7a', ridge: '#e8fbff', mist: '#7fd0ff' };
     const bg = g.createLinearGradient(0, 0, 0, h);
     bg.addColorStop(0, '#000');
-    bg.addColorStop(1, pal[0]!);
+    bg.addColorStop(1, pal.bg);
     g.fillStyle = bg;
     g.fillRect(0, 0, w, h);
-    const order = [2, 1, 0];
-    const cols = [pal[1]!, pal[2]!, pal[3]!];
-    const alphas = [0.55, 0.75, 1];
-    for (let k = 0; k < 3; k++) {
-      const li = order[k]!;
+    // back → front: bigger, paler layers behind; the raw spectrum in front
+    const layersToDraw: { li: number; scale: number; base: number; color: string; alpha: number }[] = [
+      { li: 2, scale: h * 0.8, base: h * 0.93, color: pal.back, alpha: 0.45 },
+      { li: 1, scale: h * 0.66, base: h * 0.95, color: pal.mid, alpha: 0.7 },
+      { li: 0, scale: h * 0.55, base: h * 0.97, color: pal.front, alpha: 1 },
+    ];
+    for (let k = 0; k < layersToDraw.length; k++) {
+      const { li, scale, base, color, alpha } = layersToDraw[k]!;
       const layer = L[li]!;
-      const scale = h * (li === 0 ? 0.5 : li === 1 ? 0.62 : 0.72) * (fire ? 1.05 : 1);
-      const base = h * (0.95 - k * 0.03);
       const grad = g.createLinearGradient(0, base - scale, 0, base);
-      grad.addColorStop(0, cols[k]!);
-      grad.addColorStop(1, pal[0]!);
-      g.globalAlpha = alphas[k]!;
+      grad.addColorStop(0, k === 2 ? pal.mid : color);
+      grad.addColorStop(1, color);
+      g.globalAlpha = alpha;
       g.fillStyle = grad;
       g.beginPath();
       g.moveTo(0, base);
-      for (let i = 0; i < n; i++) {
-        const x = (i / (n - 1)) * w;
-        const y = base - layer[i]! * scale;
-        g.lineTo(x, y);
-      }
+      for (let i = 0; i < n; i++) g.lineTo((i / (n - 1)) * w, base - layer[i]! * scale);
       g.lineTo(w, base);
       g.closePath();
       g.fill();
+      // mist: a soft glow rising from the ridge
+      g.globalAlpha = alpha * 0.35;
+      g.strokeStyle = pal.mist;
+      g.lineWidth = Math.max(6, h / 40);
+      g.beginPath();
+      for (let i = 0; i < n; i++) {
+        const x = (i / (n - 1)) * w;
+        const y = base - layer[i]! * scale;
+        if (i === 0) g.moveTo(x, y);
+        else g.lineTo(x, y);
+      }
+      g.stroke();
       if (k === 2) {
-        g.strokeStyle = fire ? 'rgba(255,240,200,0.8)' : 'rgba(230,250,255,0.75)';
+        g.globalAlpha = 0.9;
+        g.strokeStyle = pal.ridge;
         g.lineWidth = Math.max(1, w / 900);
-        g.beginPath();
-        for (let i = 0; i < n; i++) {
-          const x = (i / (n - 1)) * w;
-          const y = base - layer[i]! * scale;
-          if (i === 0) g.moveTo(x, y);
-          else g.lineTo(x, y);
-        }
         g.stroke();
       }
     }

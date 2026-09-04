@@ -59,6 +59,7 @@ uniform float uPaletteLocked;
 uniform float uDrift;
 uniform float uPlaying;
 uniform float uLoud;
+uniform float uFade;
 in vec2 vUv;
 out vec4 frag;
 
@@ -95,7 +96,7 @@ vec2 applyShift(vec2 uv) {
   } else if (uShift < 4.5) {     // tiling
     float tiles = 3.0 + floor(uSeed * 2.0);
     p = (fract(p * tiles + 0.5) - 0.5) / tiles;
-    p *= 0.995;
+    p *= 0.985;
     p = rotate(p, uTime * 0.025);
   } else if (uShift < 5.5) {     // ripple
     a += sin(r * 3.0 - uTime * 0.35) * 0.18 * s;
@@ -119,9 +120,9 @@ vec2 applyShift(vec2 uv) {
   } else if (uShift < 12.5) {    // bass zoom
     p *= 0.99 - uBass * 0.008;
   } else if (uShift < 13.5) {    // wave warp
-    p.x += sin(p.y * 3.5 + uTime * 0.35) * 0.006 * s;
-    p.y += cos(p.x * 3.0 - uTime * 0.25) * 0.006 * s;
-    p *= 0.995;
+    p.x += sin(p.y * 3.5 + uTime * 0.35) * 0.004 * s;
+    p.y += cos(p.x * 3.0 - uTime * 0.25) * 0.004 * s;
+    p *= 0.988;
   } else if (uShift < 14.5) {    // sine drift
     p += 0.004 * s * vec2(sin(uv.y * 6.0 + uTime * 0.3), cos(uv.x * 5.0 - uTime * 0.25));
     p *= 0.995;
@@ -144,7 +145,7 @@ vec2 applyShift(vec2 uv) {
     p = vec2(cos(a), sin(a)) * r;
   }
   p.x /= aspect;
-  return clamp(p + 0.5, 0.002, 0.998);
+  return p + 0.5;
 }
 
 float inject(vec2 uv) {
@@ -167,17 +168,17 @@ float inject(vec2 uv) {
       float w = 0.11 + uRms * 0.05;
       blob += smoothstep(w, 0.0, d);
     }
-    ink = blob * 0.45;
+    ink = blob * 0.8;
   } else if (uDraw < 1.5) {      // ring
     float ring = abs(r - (0.24 + uBass * 0.08));
-    ink = smoothstep(0.07, 0.0, ring) * (0.35 + energy);
+    ink = smoothstep(0.07, 0.0, ring) * (0.6 + energy);
   } else if (uDraw < 2.5) {      // radar sweep
     float sweep = abs(fract(a / 6.28318 - uTime * 0.04) - 0.5);
-    ink = smoothstep(0.08, 0.0, sweep - 0.42) * (0.3 + energy);
-    ink += smoothstep(0.05, 0.0, abs(r - 0.32)) * 0.2;
+    ink = smoothstep(0.08, 0.0, sweep - 0.42) * (0.25 + energy * 0.5);
+    ink += smoothstep(0.05, 0.0, abs(r - 0.32)) * 0.25;
   } else if (uDraw < 3.5) {      // dot grid
     vec2 g = fract(p * 10.0) - 0.5;
-    ink = smoothstep(0.16, 0.02, length(g)) * (0.12 + uBass * 0.25);
+    ink = smoothstep(0.16, 0.02, length(g)) * (0.8 + uBass * 0.8);
   } else if (uDraw < 4.5) {      // five-arm burst
     float burst = 0.0;
     for (int i = 0; i < 5; i++) {
@@ -186,51 +187,52 @@ float inject(vec2 uv) {
       float proj = clamp(dot(p, dir), 0.0, 0.5);
       burst += smoothstep(0.035, 0.0, length(p - dir * proj));
     }
-    ink = burst * (0.2 + energy * 0.35);
+    ink = burst * (0.5 + energy * 0.5);
   } else if (uDraw < 5.5) {      // edge frame
     float edge = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y));
-    ink = smoothstep(0.08, 0.0, edge) * (0.2 + energy * 0.4);
+    ink = smoothstep(0.08, 0.0, edge) * (0.7 + energy * 0.6);
   } else if (uDraw < 6.5) {      // edge frame (mid driven)
     float edge = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y));
-    ink = smoothstep(0.07, 0.0, edge) * (0.18 + uMid * 0.35);
+    ink = smoothstep(0.07, 0.0, edge) * (0.65 + uMid * 0.7);
   } else if (uDraw < 7.5) {      // sparkle grid
     vec2 gp = p * 6.0;
     vec2 f = fract(gp) - 0.5;
-    float n = fract(sin(dot(floor(gp), vec2(12.7, 78.2)) + uSeed) * 43758.5);
-    ink = smoothstep(0.12, 0.0, length(f)) * n * (0.35 + uTreble * 0.6);
+    float n = 0.35 + 0.65 * fract(sin(dot(floor(gp), vec2(12.7, 78.2)) + uSeed) * 43758.5);
+    float twinkle = 0.6 + 0.4 * sin(uTime * 3.0 + n * 40.0);
+    ink = smoothstep(0.2, 0.0, length(f)) * n * (0.5 + 0.5 * twinkle) * (2.0 + uTreble);
   } else if (uDraw < 8.5) {      // floor rise
     float h = 0.15 + uBass * 0.35 + uRms * 0.2;
-    ink = smoothstep(h + 0.08, h, 1.0 - uv.y) * h * 0.35;
+    ink = smoothstep(h + 0.08, h, uv.y) * (0.2 + h * 0.6);
   } else if (uDraw < 9.5) {      // smoke
     float smoke = 0.5 + 0.5 * sin(r * 4.0 - uTime * 0.2 + a);
-    ink = smoke * smoothstep(0.65, 0.12, r) * (0.18 + energy * 0.3);
+    ink = smoke * smoothstep(0.55, 0.1, r) * (0.4 + energy * 0.4);
   } else if (uDraw < 10.5) {     // ribbon
     float ribbon = sin(p.x * 2.4 + uTime * 0.2) * (0.08 + uMid * 0.06);
-    ink = smoothstep(0.05, 0.0, abs(p.y - ribbon)) * (0.28 + energy * 0.25);
+    ink = smoothstep(0.05, 0.0, abs(p.y - ribbon)) * (0.7 + energy * 0.3);
   } else if (uDraw < 11.5) {     // oscilloscope waveform
     float w = waveAt(uv.x) * (0.12 + uRms * 0.1);
-    ink = smoothstep(0.04, 0.0, abs(p.y - w)) * 0.3;
+    ink = smoothstep(0.04, 0.0, abs(p.y - w)) * 1.0;
   } else if (uDraw < 12.5) {     // bass bar
     float h = 0.12 + uBass * 0.4;
-    ink = (1.0 - uv.y < h) ? 0.22 * h : 0.0;
+    ink = (uv.y < h) ? 0.35 + h * 0.5 : 0.0;
   } else if (uDraw < 13.5) {     // wobble ring
     float wobble = 0.24 + uBass * 0.1;
-    ink = smoothstep(0.04, 0.0, abs(r - wobble)) * 0.4;
+    ink = smoothstep(0.04, 0.0, abs(r - wobble)) * 0.45;
   } else if (uDraw < 14.5) {     // facets
     vec2 q = rotate(p, 0.5);
     float facet = abs(sin(q.x * 6.0) * sin(q.y * 5.0));
-    ink = pow(facet, 4.0) * (0.35 + uTreble * 0.4);
+    ink = pow(facet, 4.0) * (0.5 + uTreble * 0.5);
   } else if (uDraw < 15.5) {     // lane
     float lane = abs(p.y + 0.08 * sin(p.x * 2.0 + uTime * 0.15));
-    ink = smoothstep(0.05, 0.0, lane) * (0.22 + energy * 0.25);
+    ink = smoothstep(0.05, 0.0, lane) * (0.9 + energy * 0.4);
   } else if (uDraw < 16.5) {     // X marks the spot: two diagonal waveform lines
     vec2 q = rotate(p, 0.7853982);
     float w1 = waveAt(uv.x) * (0.08 + uRms * 0.08);
     float w2 = waveAt(uv.y) * (0.08 + uRms * 0.08);
-    ink = smoothstep(0.035, 0.0, abs(q.y - w1)) * 0.3 + smoothstep(0.035, 0.0, abs(q.x - w2)) * 0.3;
+    ink = smoothstep(0.035, 0.0, abs(q.y - w1)) * 0.9 + smoothstep(0.035, 0.0, abs(q.x - w2)) * 0.9;
   } else if (uDraw < 17.5) {     // windmill: four rotating blades
     float blades = abs(sin((a + uTime * (0.5 + uBass)) * 2.0));
-    ink = pow(blades, 12.0) * smoothstep(0.55, 0.05, r) * (0.25 + energy * 0.4);
+    ink = pow(blades, 12.0) * smoothstep(0.55, 0.05, r) * (0.9 + energy * 0.6);
   } else if (uDraw < 18.5) {     // bubbles rising
     float bub = 0.0;
     for (int i = 0; i < 6; i++) {
@@ -241,25 +243,35 @@ float inject(vec2 uv) {
       float rad = 0.03 + 0.03 * fract(fi * 0.37) + uBass * 0.03;
       bub += smoothstep(0.012, 0.0, abs(d - rad));
     }
-    ink = bub * (0.3 + energy * 0.3);
+    ink = bub * (1.3 + energy * 0.5);
   } else {                       // two lines that swap when loud (Down the Drain)
     float sw = uLoud > 0.5 ? -1.0 : 1.0;
     float l1 = abs(p.y - sw * (0.15 + 0.05 * sin(uTime * 0.3)) - waveAt(uv.x) * 0.05);
     float l2 = abs(p.y + sw * (0.15 + 0.05 * cos(uTime * 0.27)) - waveAt(1.0 - uv.x) * 0.05);
-    ink = (smoothstep(0.03, 0.0, l1) + smoothstep(0.03, 0.0, l2)) * (0.25 + energy * 0.3);
+    ink = (smoothstep(0.03, 0.0, l1) + smoothstep(0.03, 0.0, l2)) * (0.7 + energy * 0.3);
   }
-  return ink;
+  // wide-area drawers (radar, edges, floor, smoke, bass bar, facets, windmill) get less ink so they wash less
+  bool wide = (uDraw > 1.5 && uDraw < 2.5) || (uDraw > 4.5 && uDraw < 6.5) || (uDraw > 7.5 && uDraw < 9.5) || (uDraw > 11.5 && uDraw < 12.5) || (uDraw > 13.5 && uDraw < 14.5) || (uDraw > 16.5 && uDraw < 17.5);
+  return ink * (wide ? 0.6 : 1.0);
 }
 
 void main() {
   vec2 uvShift = applyShift(vUv);
-  vec3 prev = texture(tPrev, uvShift).rgb * uDecay;
+  // the originals were darker towards the edges: extra decay there keeps washes from filling the frame
+  vec2 vp = (vUv - 0.5) * vec2(uResolution.x / max(uResolution.y, 1.0), 1.0);
+  float vign = 1.0 - 0.05 * smoothstep(0.4, 0.9, length(vp));
+  // multiplicative decay plus a small subtractive fade (like a palette index counting down) so dim washes die out
+  // outside the frame is black (clamping would smear border pixels inwards forever)
+  vec3 src = (uvShift.x < 0.0 || uvShift.x > 1.0 || uvShift.y < 0.0 || uvShift.y > 1.0) ? vec3(0.0) : texture(tPrev, uvShift).rgb;
+  vec3 prev = max(src * uDecay * vign - uFade, 0.0);
   float ink = inject(vUv) * uInk;
   float look;
   if (uPaletteLocked > 0.5) look = clamp(0.22 + uHueShift * 0.12 + uBass * 0.08, 0.02, 0.98);
   else look = fract(0.22 + uHueShift * 0.35 + uBass * 0.08);
   vec3 inkCol = texture(tPalette, vec2(look, 0.5)).rgb;
-  vec3 col = prev + inkCol * ink;
+  // ink only fills the remaining headroom so feedback can never white out
+  float head = 1.0 - max(prev.r, max(prev.g, prev.b));
+  vec3 col = prev + inkCol * ink * head;
   col = mix(col, vec3(1.0), uFlash * 0.3);
   frag = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
@@ -438,8 +450,8 @@ export class FeedbackEngine {
       ink = 0;
       shift = preset.shiftStrength * 0.08;
     } else {
-      decay = Math.min(0.976, preset.decay);
-      ink = preset.ink * 0.5;
+      decay = Math.min(0.97, preset.decay);
+      ink = preset.ink * 0.6;
       shift = preset.shiftStrength * (0.7 + this.env.bass * 0.08);
     }
     const flash = preset.flashOnBeat && playing ? frame.beatEnergy * Math.min(1, this.env.rms * 1.4) : 0;
@@ -472,6 +484,8 @@ export class FeedbackEngine {
     gl.uniform1f(this.loc(this.prog, 'uDrift'), playing ? 0.16 : 0.03);
     gl.uniform1f(this.loc(this.prog, 'uPlaying'), playing ? 1 : 0);
     gl.uniform1f(this.loc(this.prog, 'uLoud'), this.env.loud);
+    // subtractive fade scaled with the preset's decay: dim washes die, bright ink lingers
+    gl.uniform1f(this.loc(this.prog, 'uFade'), playing ? (1 - decay) * 0.35 : 0.01);
     drawQuad(gl);
     this.pp.swap();
 

@@ -585,3 +585,19 @@ kbd {
     display: none;
   }
 }
+
+/* LED time display (DSEG7 Classic, OFL-1.1) */
+@font-face {
+  font-family: 'DSEG7 Classic';
+  src: url('./fonts/DSEG7Classic-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+.time {
+  font-family: 'DSEG7 Classic', ui-monospace, Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 13px;
+  color: #7ee787;
+  text-shadow: 0 0 6px rgba(126, 231, 135, 0.45);
+  letter-spacing: 0.04em;
+}

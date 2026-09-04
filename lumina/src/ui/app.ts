@@ -76,6 +76,7 @@ const HOTKEYS: [string, string][] = [
   ['R', 'Random preset'],
   ['Backspace', 'Previous preset (MilkDrop history)'],
   ['L', 'Lock preset (stop auto-cycling)'],
+  ['K', 'Next colour palette (Winamp Classic)'],
   ['T', 'Show song title (MilkDrop)'],
   ['F / double-click', 'Fullscreen'],
   ['S', 'Shuffle'],
@@ -174,7 +175,7 @@ export function createApp(root: HTMLElement, deps: AppDeps): { host: VisHost } {
       <div class="help-card">
         <h2>Keyboard</h2>
         <div class="help-grid">${HOTKEYS.map(([k, d]) => `<div><span>${d}</span><kbd>${k}</kbd></div>`).join('')}</div>
-        <p class="credits">Lumina is built on open source: <a href="https://github.com/jberg/butterchurn" target="_blank" rel="noopener">Butterchurn</a> (MilkDrop 2 in WebGL, MIT) and its preset packs, Winamp visualiser behaviour after <a href="https://github.com/captbaritone/webamp" target="_blank" rel="noopener">Webamp</a> (MIT), tags via <a href="https://github.com/Borewit/music-metadata" target="_blank" rel="noopener">music-metadata</a> (MIT). MilkDrop by Ryan Geiss / Nullsoft. Press <kbd>Esc</kbd> to close.</p>
+        <p class="credits">Lumina is built on open source: <a href="https://github.com/jberg/butterchurn" target="_blank" rel="noopener">Butterchurn</a> (MilkDrop 2 in WebGL, MIT) and its preset packs; the Winamp classic visualiser after <a href="https://github.com/captbaritone/webamp" target="_blank" rel="noopener">Webamp</a> (MIT) with the Nullsoft FFT (BSD); the Windows Media Player families on a WebGL2 port of <a href="https://github.com/Manaiakalani/now-playing" target="_blank" rel="noopener">Now Playing</a> (MIT); the XY scope after <a href="https://github.com/m1el/woscope" target="_blank" rel="noopener">woscope</a> (MIT); Shader Lab shaders from <a href="https://github.com/sandner-art/Audio-Shader-Studio" target="_blank" rel="noopener">Audio-Shader-Studio</a> (MIT); Geiss and AVS modes re-implemented after the BSD-licensed originals; tags via <a href="https://github.com/Borewit/music-metadata" target="_blank" rel="noopener">music-metadata</a> (MIT). MilkDrop by Ryan Geiss / Nullsoft. Full list in NOTICE.md. Press <kbd>Esc</kbd> to close.</p>
       </div>
     </div>
     <input type="file" data-el="file-input" multiple accept="audio/*,.mp3,.m4a,.aac,.flac,.wav,.ogg,.opus,.oga,.webm" hidden>
@@ -633,6 +634,13 @@ export function createApp(root: HTMLElement, deps: AppDeps): { host: VisHost } {
   );
   void host.setMode(startMode);
   host.start();
+
+  // PWA file handling: files opened with the installed app arrive through launchQueue
+  const lq = (window as unknown as { launchQueue?: { setConsumer(cb: (p: { files?: FileSystemFileHandle[] }) => void): void } }).launchQueue;
+  lq?.setConsumer((params) => {
+    if (!params.files?.length) return;
+    void Promise.all(params.files.map((h) => h.getFile())).then((files) => addTracks(tracksFromFileList(files)));
+  });
 
   // expose for e2e tests / console tinkering
   (window as unknown as { lumina: unknown }).lumina = { engine, playlist, host, addTracks, loadDemo };

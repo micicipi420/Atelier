@@ -79,7 +79,7 @@ export const plenopticPresets: FeedbackPreset[] = [
   p({ id: 'vox', name: 'Vox', shift: 14, draw: 10, decay: 0.966, paletteLocked: true, palette: ['#0a0614', '#3a1860', '#8a40c8', '#e0a0ff', '#f8e8ff'], hueSpeed: 0.01, shiftStrength: 0.85, ink: 1.05, seed: 0.61 }),
   p({ id: 'flame', name: 'Flame', shift: 7, draw: 8, decay: 0.955, paletteLocked: true, palette: ['#100200', '#701000', '#ff6010', '#ffd040', '#fffce0'], shiftStrength: 1, ink: 1.2, flashOnBeat: true, seed: 0.47 }),
   p({ id: 'fountain', name: 'Fountain', shift: 15, draw: 8, decay: 0.952, paletteLocked: true, palette: ['#12080a', '#7a2018', '#e07030', '#ffd080', '#fff4dc'], hueSpeed: 0, shiftStrength: 1, ink: 1.2, flashOnBeat: true, seed: 0.4 }),
-  p({ id: 'spyro', name: 'Spyro', shift: 0, draw: 2, decay: 0.97, paletteLocked: true, palette: ['#08140c', '#1a6030', '#7ad040', '#e8ff8a'], hueSpeed: 0.015, shiftStrength: 1.1, ink: 1, flashOnBeat: true, seed: 0.17 }),
+  p({ id: 'spyro', name: 'Spyro', shift: 11, draw: 13, decay: 0.966, paletteLocked: true, palette: ['#08140c', '#1a6030', '#7ad040', '#e8ff8a'], hueSpeed: 0.015, shiftStrength: 1.1, ink: 1, flashOnBeat: true, seed: 0.17 }),
 ];
 
 export const musicalColorsPresets: FeedbackPreset[] = [
