@@ -36,11 +36,25 @@ Atelier repository as it existed before Lumina was started.
   PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
   OR IMPLIED WARRANTIES ARE DISCLAIMED.
 - **Now Playing** — Manaiakalani, MIT (https://github.com/Manaiakalani/now-playing,
-  commit `ce8edca`, "Initial public release of Now Playing"). MIT License,
-  Copyright (c) 2026 Manaiakalani — permission is hereby granted, free of
-  charge, to any person obtaining a copy of this software, to deal in the
-  Software without restriction, subject to the standard MIT conditions; the
-  software is provided "as is", without warranty of any kind.
+  commit `ce8edca9ef5b810ee4f96a7b32f9053d57b4654c`, "Initial public release of
+  Now Playing", 2026-08-18). Licence text as shipped in that repository:
+
+  > MIT License — Copyright (c) 2026 Manaiakalani. Permission is hereby granted,
+  > free of charge, to any person obtaining a copy of this software and
+  > associated documentation files (the "Software"), to deal in the Software
+  > without restriction, including without limitation the rights to use, copy,
+  > modify, merge, publish, distribute, sublicense, and/or sell copies of the
+  > Software, and to permit persons to whom the Software is furnished to do so,
+  > subject to the following conditions: The above copyright notice and this
+  > permission notice shall be included in all copies or substantial portions
+  > of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  > KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  > MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+  > NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+  > DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+  > OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+  > USE OR OTHER DEALINGS IN THE SOFTWARE.
+
   `src/vis/wmp/feedback.ts` is a raw-WebGL2 port of its three.js
   `FeedbackEngine` (displacement modes and ink drawers) and audio envelopes;
   `src/vis/wmp/presets.ts` starts from its Ambience / Battery / Alchemy /
@@ -80,10 +94,17 @@ packaging is MIT. Lumina redistributes them as-is, does not relicense them,
 and will remove any preset on request from its author (open an issue in this
 repository). No preset image textures are shipped.
 
-## Inspiration only
+## Inspiration only — Windows Media Player tribute policy
 
 Windows Media Player visualizations (Bars and Waves, Ambience, Battery,
 Alchemy, Particle, Plenoptic, Spikes, Musical Colors) are re-created from
-their documented look and behaviour; no Microsoft code or artwork is used.
+their documented look and behaviour. Preset names are used as homage to
+identify the look being tributed. Colours, motion and timing were authored by
+Lumina, or inherited from Now Playing (MIT), by eye from public descriptions;
+nothing is measured from, extracted from, or reverse-engineered out of
+Microsoft binaries, and no Microsoft code, screenshots or artwork is
+redistributed. Of the 74 feedback presets, 22 are inherited unchanged from Now
+Playing, 4 were adjusted, and 48 are Lumina's own settings under the original
+preset names.
 Winamp, MilkDrop, Windows Media Player and Windows are trademarks of their
 respective owners and are referenced for identification only.

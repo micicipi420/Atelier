@@ -120,59 +120,53 @@ const PRESETS: Preset[] = [
 const ALL_EFFECTS: Effect[] = ['chasers', 'bars', 'dots', 'solar', 'grid', 'nuclide', 'shade'];
 const DAMPENED_MODES = new Set([1, 2, 4, 5, 6, 7, 8, 13, 14, 16]);
 
-function hsv(h: number, s: number, v: number): [number, number, number] {
-  const i = Math.floor(h * 6);
-  const f = h * 6 - i;
-  const p = v * (1 - s);
-  const q = v * (1 - f * s);
-  const t = v * (1 - (1 - f) * s);
-  switch (i % 6) {
-    case 0:
-      return [v, t, p];
-    case 1:
-      return [q, v, p];
-    case 2:
-      return [p, v, t];
-    case 3:
-      return [p, q, v];
-    case 4:
-      return [t, p, v];
-    default:
-      return [v, p, q];
-  }
-}
-
-/** A Geiss-like palette: black at 0, then a few smooth hue/brightness key points. */
+/**
+ * Geiss palettes: one random curve per colour channel (the original's "CrankPal"
+ * curves 1-7, from geissomatik/geiss main.cpp), so palettes range from smooth
+ * monotone ramps to bright saturated blends. Index 0 is always black.
+ */
+const CURVES: ((x: number) => number)[] = [
+  (x) => Math.sqrt(x) * 22.6,
+  (x) => 2 * x,
+  (x) => (x * x) / 64,
+  (x) => 255 * Math.sin((x / 256) * Math.PI * 0.5),
+  (x) => 3.5 * x,
+  (x) => Math.pow(1.5, x / 20) - 1,
+  (x) => 1.5 * x + 32 + 32 * Math.sin(0.3 * x),
+];
 function randomPalette(): Float32Array {
-  const keys: { pos: number; c: [number, number, number] }[] = [{ pos: 0, c: [0, 0, 0] }];
-  const n = 3 + Math.floor(Math.random() * 3);
-  const baseHue = Math.random();
-  for (let i = 1; i <= n; i++) {
-    const pos = i / n;
-    const hue = (baseHue + (Math.random() - 0.5) * 0.35 + i * 0.13) % 1;
-    const sat = 0.55 + Math.random() * 0.45;
-    const val = Math.min(1, 0.35 + pos * 0.9 + Math.random() * 0.2);
-    keys.push({ pos, c: hsv((hue + 1) % 1, sat, val) });
-  }
-  keys[keys.length - 1]!.c = [1, 1, Math.random() < 0.5 ? 1 : 0.8];
   const out = new Float32Array(256 * 3);
+  const pick = () => CURVES[Math.floor(Math.random() * CURVES.length)]!;
+  let r = pick();
+  let g = pick();
+  let b = pick();
+  // the dark exponential curve is only ever used on one channel
+  const dark = CURVES[5]!;
+  if (r === dark && g === dark) g = CURVES[1]!;
+  if ((r === dark || g === dark) && b === dark) b = CURVES[3]!;
+  // 1 in 6 palettes is a monotone "FX" ramp in a random channel order
+  const mono = Math.random() < 1 / 6;
+  const monoCurves = [CURVES[2]!, CURVES[1]!, CURVES[0]!];
+  const perm = [0, 1, 2].sort(() => Math.random() - 0.5);
   for (let i = 0; i < 256; i++) {
-    const t = i / 255;
-    let a = keys[0]!;
-    let b = keys[keys.length - 1]!;
-    for (let k = 0; k < keys.length - 1; k++) {
-      if (t >= keys[k]!.pos && t <= keys[k + 1]!.pos) {
-        a = keys[k]!;
-        b = keys[k + 1]!;
-        break;
-      }
+    let cr: number;
+    let cg: number;
+    let cb: number;
+    if (mono) {
+      const v = [monoCurves[perm[0]!]!(Math.min(127, i) * 2), monoCurves[perm[1]!]!(Math.min(127, i) * 2), monoCurves[perm[2]!]!(Math.min(127, i) * 2)];
+      cr = v[0]!;
+      cg = v[1]!;
+      cb = v[2]!;
+    } else {
+      cr = r(i);
+      cg = g(i);
+      cb = b(i);
     }
-    const f = b.pos === a.pos ? 0 : (t - a.pos) / (b.pos - a.pos);
-    const s = f * f * (3 - 2 * f);
-    out[i * 3] = a.c[0] + (b.c[0] - a.c[0]) * s;
-    out[i * 3 + 1] = a.c[1] + (b.c[1] - a.c[1]) * s;
-    out[i * 3 + 2] = a.c[2] + (b.c[2] - a.c[2]) * s;
+    out[i * 3] = Math.min(255, Math.max(0, cr)) / 255;
+    out[i * 3 + 1] = Math.min(255, Math.max(0, cg)) / 255;
+    out[i * 3 + 2] = Math.min(255, Math.max(0, cb)) / 255;
   }
+  out[0] = out[1] = out[2] = 0;
   return out;
 }
 

@@ -130,6 +130,41 @@ implementation answers them as follows.
   Butterchurn 2.x) and the absence of a service worker are documented in the
   README.
 
+## Follow-up research (closing the critique's gaps)
+
+Four targeted follow-ups ran after the critique. What they established:
+
+- **Butterchurn 3.0.0-beta.5** was verified end to end (Vite build and dev
+  server, headless Chromium): the host canvas becomes a 2D canvas fed from an
+  internal OffscreenCanvas, `loadPreset` is async, WASM presets load in
+  18–53 ms, and the CSP requirement drops to `'wasm-unsafe-eval'`. It also
+  found a **sizing rule that applies to 2.x as well**: the output viewport is
+  exactly the `width × height` passed in and `pixelRatio` only supersamples,
+  so the canvas' device-pixel size must be passed with `pixelRatio: 1` —
+  Lumina's MilkDrop mode now does this (HiDPI screens previously only filled a
+  quadrant). Safari 16.4–16.6 would crash Butterchurn 3 (OffscreenCanvas
+  without WebGL2), another reason to stay on 2.6.7 for now.
+- **AVS scripting**: the recommended runtime is `eel-wasm` (MIT, 113 KB,
+  already inside Butterchurn 3), with `eelVersion: 1`, shims for
+  `getosc/getspec/gettime`, and a 16×16 grid for Dynamic Movement; the 23
+  built-in Movement formulas live in vis_avs `e_movement.h` and the exact
+  Timescope / Bass Spin / Rotating Stars / Starfield constants in the
+  corresponding `r_*.cpp` files. `@visbot/webvsc` 3.0.0-alpha.5 provides a
+  preset JSON schema and BSD example presets. This is the path for a future
+  scriptable AVS mode.
+- **Geiss**: the frame pipeline (RenderFX → Process_Map inverse warp with
+  bilinear weights summing to 250–255 of 256, i.e. an implicit 0.977–0.996
+  per-frame decay → dots → wave → palette) and the mode-switch equations
+  (lines 4312–5418) were mapped in detail; dampened modes move at half speed
+  and Geiss 4.x motion is not audio-reactive (audio drives brightness, blobs,
+  beat-gated switches). The palette generator uses seven "CrankPal" curves
+  per channel — Lumina's Geiss mode now uses those curves.
+- **WMP calibration**: every calibration source (WMP wiki, archive.org,
+  YouTube) is unreachable from this environment, so all WMP colours remain
+  tributes by eye — 22 presets inherited unchanged from Now Playing, 4
+  adjusted, 48 Lumina-authored, as now stated in NOTICE.md together with the
+  full Now Playing commit SHA and verbatim licence.
+
 ## Recommendations from the synthesis that were deliberately not taken (yet)
 
 The research synthesis also proposed: Butterchurn 3.0 beta with `onlyUseWASM`

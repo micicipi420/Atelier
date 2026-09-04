@@ -76,10 +76,13 @@ export class MilkdropVis implements VisInstance {
     const bc = unwrap<{ createVisualizer: (c: AudioContext, canvas: HTMLCanvasElement, o: object) => ButterchurnVisualizer }>(bcMod, 'createVisualizer');
     if (this.destroyed) return;
     const audioCtx = ctx.engine.ensureContext();
+    // Butterchurn's output viewport is exactly width×height; pixelRatio only supersamples the
+    // internal textures, so pass the canvas' device-pixel size with pixelRatio 1 (else HiDPI
+    // screens would only get the top-left quadrant filled).
     this.vis = bc.createVisualizer(audioCtx, ctx.canvas, {
-      width: ctx.width,
-      height: ctx.height,
-      pixelRatio: ctx.dpr,
+      width: ctx.canvas.width,
+      height: ctx.canvas.height,
+      pixelRatio: 1,
       textureRatio: 1,
     });
     this.node = ctx.engine.tapNode;
@@ -124,7 +127,7 @@ export class MilkdropVis implements VisInstance {
   }
 
   resize(ctx: VisContext): void {
-    this.vis?.setRendererSize(ctx.width, ctx.height, { pixelRatio: ctx.dpr, textureRatio: 1 });
+    this.vis?.setRendererSize(ctx.canvas.width, ctx.canvas.height, { pixelRatio: 1, textureRatio: 1 });
   }
 
   destroy(): void {
