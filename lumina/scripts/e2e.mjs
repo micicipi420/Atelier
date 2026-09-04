@@ -43,6 +43,7 @@ const fail = (msg) => { report.ok = false; console.error('FAIL:', msg); };
 // 1. load demo (synthesised in the page)
 await page.click('[data-act=demo]');
 await page.waitForFunction(() => window.lumina?.engine?.playing === true, null, { timeout: 60000 });
+await page.evaluate(() => { window.lumina.playlist.setRepeat('all'); });
 await page.waitForTimeout(1500);
 const state = await page.evaluate(() => ({ n: window.lumina.playlist.length, title: window.lumina.engine.track?.title, t: window.lumina.engine.currentTime }));
 console.log('playing:', state);
